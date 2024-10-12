@@ -1,4 +1,3 @@
-// models/todo.js
 'use strict';
 const { Model, DataTypes, Op } = require('sequelize');
 
@@ -46,7 +45,6 @@ module.exports = (sequelize) => {
           dueDate: {
             [Op.lt]: today
           },
-          completed: false
         }
       });
     }
@@ -56,7 +54,6 @@ module.exports = (sequelize) => {
       return await Todo.findAll({
         where: {
           dueDate: today.toISOString().split('T')[0],
-          completed: false
         }
       });
     }
@@ -68,7 +65,6 @@ module.exports = (sequelize) => {
           dueDate: {
             [Op.gt]: today
           },
-          completed: false
         }
       });
     }
@@ -83,7 +79,18 @@ module.exports = (sequelize) => {
 
     displayableString() {
       const checkbox = this.completed ? "[x]" : "[ ]";
-      return `${this.id}. ${checkbox} ${this.title} ${this.dueDate}`;
+      const today = new Date().toISOString().split('T')[0];
+
+      if (this.completed && this.dueDate < today) {
+        // Completed and overdue
+        return `${this.id}. ${checkbox} ${this.title} ${this.dueDate}`;
+      } else if (this.dueDate === today) {
+        // Due today
+        return `${this.id}. ${checkbox} ${this.title}`;
+      } else {
+        // Future or incomplete
+        return `${this.id}. ${checkbox} ${this.title} ${this.dueDate}`;
+      }
     }
   }
 
